@@ -60,7 +60,6 @@ else:
     div_net_eurl = 0
     revenu_net_eurl = remu_net
 
-# === Affichage
 col1, col2 = st.columns(2)
 
 with col1:
@@ -81,7 +80,7 @@ with col1:
 
     st.markdown("### 💰 Distribution")
     st.write(f"Dividendes nets (flat tax 30%) : **{div_net_sasu:.0f} €**")
-    st.write(f"🟢 Revenu net total : **{revenu_net_sasu:.0f} €** par {frequence.lower()}")
+    st.markdown(f"🟢 <strong>Revenu net total :</strong> <span style='color:green'><strong>{revenu_net_sasu:.0f} €</strong></span> par {frequence.lower()}", unsafe_allow_html=True)
 
 with col2:
     st.subheader("📊 EURL")
@@ -103,12 +102,11 @@ with col2:
         st.write(f"Dividendes nets (flat tax 30%) : **{div_net_eurl:.0f} €**")
     else:
         st.info("Rémunération non déductible fiscalement à l'IR")
-        st.write(f"IS = 0 € (imposition au niveau du dirigeant)")
+        st.write(f"IS = 0 € (le gérant est imposé directement sur le résultat de l'entreprise)")
         st.markdown(f"🟢 <strong>Bénéfice après IR :</strong> <span style='color:green'><strong>{benefice_net_eurl:.0f} €</strong></span>", unsafe_allow_html=True)
 
-    st.write(f"🟢 Revenu net total : **{revenu_net_eurl:.0f} €** par {frequence.lower()}")
+    st.markdown(f"🟢 <strong>Revenu net total :</strong> <span style='color:green'><strong>{revenu_net_eurl:.0f} €</strong></span> par {frequence.lower()}", unsafe_allow_html=True)
 
-# === Graphique
 st.markdown("---")
 fig, ax = plt.subplots()
 ax.bar(["SASU", "EURL"], [revenu_net_sasu, revenu_net_eurl], color=["#4caf50", "#2196f3"])
@@ -116,7 +114,6 @@ ax.set_ylabel(f"Revenu net {frequence.lower()} (€)")
 ax.set_title("Comparatif SASU vs EURL")
 st.pyplot(fig)
 
-# === Conclusion
 diff = revenu_net_sasu - revenu_net_eurl
 if diff > 0:
     st.success(f"✅ SASU plus avantageuse de **{diff:.0f} €** par {frequence.lower()}")
@@ -125,8 +122,9 @@ elif diff < 0:
 else:
     st.info("⚖️ Égalité parfaite.")
 
-# === Rappel pédagogique
 st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
 st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
+
+#VersionFonctionnelle
