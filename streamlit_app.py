@@ -13,17 +13,17 @@ taux_sasu = 0.82
 taux_eurl = 0.66
 taux_flat_tax = 0.30
 
-ca = st.number_input("💰 Chiffre d'affaires", value=80000) * facteur
-charges = st.number_input("💸 Charges hors rémunération", value=20000) * facteur
+ca = st.number_input("💰 Chiffre d'affaires", value=0) * facteur
+charges = st.number_input("💸 Charges hors rémunération", value=0) * facteur
 eurl_avec_is = st.checkbox("🏛️ EURL soumise à l'IS")
 auto_dividendes = st.checkbox("📌 SASU : percevoir tous les bénéfices comme dividendes")
 
 if mode_saisie == "Nette":
-    remu_net = st.number_input("👤 Rémunération nette souhaitée", value=13500) * facteur
+    remu_net = st.number_input("👤 Rémunération nette souhaitée", value=0) * facteur
     remu_brute_sasu = remu_net * (1 + taux_sasu)
     remu_brute_eurl = remu_net * (1 + taux_eurl)
 else:
-    remu_brute = st.number_input("👤 Rémunération brute souhaitée", value=25000) * facteur
+    remu_brute = st.number_input("👤 Rémunération brute souhaitée", value=0) * facteur
     remu_net = remu_brute / (1 + taux_sasu)
     remu_brute_sasu = remu_brute
     remu_brute_eurl = remu_brute
@@ -43,7 +43,7 @@ cout_sasu = remu_brute_sasu
 resultat_sasu = ca - charges - cout_sasu
 is_sasu = calcul_is(resultat_sasu)
 benefice_net_sasu = resultat_sasu - is_sasu
-div_sasu = max(0, benefice_net_sasu) if auto_dividendes else st.number_input("📈 Dividendes SASU", value=5000 * facteur)
+div_sasu = max(0, benefice_net_sasu) if auto_dividendes else st.number_input("📈 Dividendes SASU", value=0 * facteur)
 div_net_sasu = div_sasu * (1 - taux_flat_tax)
 revenu_net_sasu = remu_net + div_net_sasu
 
@@ -133,3 +133,4 @@ st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
 st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
+
