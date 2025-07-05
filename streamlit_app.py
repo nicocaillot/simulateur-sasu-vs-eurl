@@ -4,25 +4,19 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Simulateur SASU vs EURL", page_icon="📊", layout="centered")
 st.title("🧮 Simulateur SASU vs EURL")
 
-# === Période
 frequence = st.radio("🗓️ Voir les résultats :", ["Annuel", "Mensuel"])
 facteur = 1 if frequence == "Annuel" else 1 / 12
-
-# === Mode de saisie
 mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Brute"])
 
-# === Taux réalistes
 taux_sasu = 0.82
 taux_eurl = 0.66
 taux_flat_tax = 0.30
 
-# === Entrées
 ca = st.number_input("💰 Chiffre d'affaires", value=80000) * facteur
 charges = st.number_input("💸 Charges hors rémunération", value=20000) * facteur
 eurl_avec_is = st.checkbox("🏛️ EURL soumise à l'IS")
 auto_dividendes = st.checkbox("📌 SASU : percevoir tous les bénéfices comme dividendes")
 
-# === Rémunération
 if mode_saisie == "Nette":
     remu_net = st.number_input("👤 Rémunération nette souhaitée", value=13500) * facteur
     remu_brute_sasu = remu_net * (1 + taux_sasu)
@@ -36,7 +30,6 @@ else:
 cot_sasu = remu_brute_sasu - remu_net
 cot_eurl = remu_brute_eurl - remu_net
 
-# === IS progressif
 def calcul_is(resultat):
     if resultat <= 0:
         return 0
@@ -65,7 +58,7 @@ if eurl_avec_is:
 else:
     resultat_eurl = ca - charges
     is_eurl = 0
-    benefice_net_eurl = resultat_eurl  # non imposé via société
+    benefice_net_eurl = resultat_eurl
     div_net_eurl = 0
     revenu_net_eurl = remu_net
 
@@ -82,11 +75,11 @@ with col1:
     st.markdown("### 🏢 Société")
     st.write(f"Charges hors rémunération : **{charges:.0f} €**")
     st.write(f"Bénéfice avant IS : **{resultat_sasu:.0f} €**")
-    st.write(f"Bénéfice après IS : **{benefice_net_sasu:.0f} €**")
     if resultat_sasu > 42500:
         st.write(f"IS : 15% sur 42 500 € = {42500 * 0.15:.0f} €")
         st.write(f"     25% sur {resultat_sasu - 42500:.0f} € = {(resultat_sasu - 42500) * 0.25:.0f} €")
     st.write(f"➡️ Total IS = **{is_sasu:.0f} €**")
+    st.write(f"Bénéfice après IS : **{benefice_net_sasu:.0f} €**")
 
     st.markdown("### 💰 Distribution")
     st.write(f"Dividendes nets (flat tax 30%) : **{div_net_sasu:.0f} €**")
@@ -104,16 +97,17 @@ with col2:
     st.write(f"Charges hors rémunération : **{charges:.0f} €**")
     st.write(f"Bénéfice avant IS : **{resultat_eurl:.0f} €**")
     if eurl_avec_is:
-        st.write(f"Bénéfice après IS : **{benefice_net_eurl:.0f} €**")
         if resultat_eurl > 42500:
             st.write(f"IS : 15% sur 42 500 € = {42500 * 0.15:.0f} €")
             st.write(f"     25% sur {resultat_eurl - 42500:.0f} € = {(resultat_eurl - 42500) * 0.25:.0f} €")
         st.write(f"➡️ Total IS = **{is_eurl:.0f} €**")
+        st.write(f"Bénéfice après IS : **{benefice_net_eurl:.0f} €**")
         st.markdown("### 💰 Distribution")
         st.write(f"Dividendes nets (flat tax 30%) : **{div_net_eurl:.0f} €**")
     else:
         st.info("Rémunération non déductible fiscalement à l'IR")
-        st.write("IS = 0 € (imposition au niveau du dirigeant)")
+        st.write(f"IS = 0 € (imposition au niveau du dirigeant)")
+        st.write(f"Bénéfice après IS : **{benefice_net_eurl:.0f} €**")
 
     st.write(f"🟢 Revenu net total : **{revenu_net_eurl:.0f} €** par {frequence.lower()}")
 
