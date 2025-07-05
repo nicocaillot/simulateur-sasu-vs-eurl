@@ -13,6 +13,23 @@ messages_erreur = []
 if ca == 0:
     champs_valides = False
     messages_erreur.append("➡️ Veuillez saisir un chiffre d'affaires.")
+if mode_saisie == "Nette" and remu_net == 0:
+    champs_valides = False
+    messages_erreur.append("➡️ Veuillez saisir une rémunération nette.")
+if mode_saisie == "Brute" and 'remu_brute' in locals() and remu_brute == 0:
+    champs_valides = False
+    messages_erreur.append("➡️ Veuillez saisir une rémunération brute.")
+
+if not champs_valides:
+    for msg in messages_erreur:
+        st.warning(msg)
+
+# Validation des entrées
+champs_valides = True
+messages_erreur = []
+if ca == 0:
+    champs_valides = False
+    messages_erreur.append("➡️ Veuillez saisir un chiffre d'affaires.")
 if remu_net == 0 and mode_saisie == "Nette":
     champs_valides = False
     messages_erreur.append("➡️ Veuillez saisir une rémunération nette.")
@@ -150,4 +167,3 @@ st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
 st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
-
