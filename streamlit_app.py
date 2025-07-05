@@ -6,6 +6,23 @@ st.title("🧮 Simulateur SASU vs EURL")
 st.markdown("<p style='font-size:16px;'>Comparez les régimes fiscaux et sociaux entre une SASU et une EURL pour optimiser votre revenu net.</p>", unsafe_allow_html=True)
 
 frequence = st.radio("🗓️ Voir les résultats :", ["Annuel", "Mensuel"])
+
+# Validation des entrées
+champs_valides = True
+messages_erreur = []
+if ca == 0:
+    champs_valides = False
+    messages_erreur.append("➡️ Veuillez saisir un chiffre d'affaires.")
+if remu_net == 0 and mode_saisie == "Nette":
+    champs_valides = False
+    messages_erreur.append("➡️ Veuillez saisir une rémunération nette.")
+if mode_saisie == "Brute" and remu_brute == 0:
+    champs_valides = False
+    messages_erreur.append("➡️ Veuillez saisir une rémunération brute.")
+
+if not champs_valides:
+    st.warning("
+".join(messages_erreur))
 facteur = 1 if frequence == "Annuel" else 1 / 12
 mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Brute"])
 
