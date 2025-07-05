@@ -126,3 +126,5 @@ st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
 st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
+
+#VersionFonctionnelle
