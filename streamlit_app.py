@@ -1,4 +1,5 @@
-import streamlit as st import matplotlib.pyplot as plt
+import streamlit as st 
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Simulateur SASU vs EURL", page_icon="📊", layout="centered") st.title("🧮 Simulateur SASU vs EURL")
 
