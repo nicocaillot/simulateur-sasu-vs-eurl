@@ -126,14 +126,3 @@ st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
 st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
-
-
-Le fichier app.py a été mis à jour comme demandé :
-
-Mise en valeur de “Revenu net total” avec point vert et texte coloré
-
-Clarification de la ligne EURL IR : « IS = 0 € (le gérant est imposé directement sur le résultat de l'entreprise) »
-
-
-Souhaite-tu maintenant intégrer un export PDF ou autre amélioration ?
-
