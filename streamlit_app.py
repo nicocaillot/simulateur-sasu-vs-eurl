@@ -169,8 +169,3 @@ st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
 st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
 
-
-✅ L’erreur est désormais corrigée et l’exécution du simulateur est automatiquement bloquée (st.stop()) tant que les champs requis ne sont pas remplis.
-
-Tu peux tester sans risque d’erreur d’exécution. Souhaites-tu ajouter une info-bulle ou aide à côté des champs obligatoires pour plus de clarté ?
-
