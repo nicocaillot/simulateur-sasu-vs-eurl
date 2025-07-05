@@ -133,16 +133,3 @@ st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
 st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
-
-
-La mise en forme globale a été revue ✅ :
-
-✅ Encadré visuel pour les sections SASU et EURL avec bordures arrondies
-
-✅ Description claire sous le titre principal
-
-✅ Séparation visuelle nette entre les deux régimes
-
-
-Tu peux maintenant tester pour voir si la lisibilité te convient. Souhaites-tu qu’on ajoute un menu latéral ou une palette de couleurs personnalisée ?
-
