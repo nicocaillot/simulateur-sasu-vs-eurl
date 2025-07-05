@@ -6,7 +6,7 @@ st.title("🧮 Simulateur SASU vs EURL")
 
 frequence = st.radio("🗓️ Voir les résultats :", ["Annuel", "Mensuel"])
 facteur = 1 if frequence == "Annuel" else 1 / 12
-mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Brute"])
+mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Coût employeur"])
 
 taux_sasu = 0.82
 taux_eurl = 0.66
