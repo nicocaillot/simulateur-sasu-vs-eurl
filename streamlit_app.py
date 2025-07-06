@@ -8,7 +8,7 @@ frequence = st.radio("🗓️ Voir les résultats :", ["Année", "Mois"])
 facteur = 1 if frequence == "Année" else 1 / 12
 mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Coût employeur"])
 
-taux_sasu = 0.82
+taux_sasu = 0.84
 taux_eurl = 0.66
 taux_flat_tax = 0.30
 
