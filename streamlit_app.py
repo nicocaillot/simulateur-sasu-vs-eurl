@@ -23,19 +23,19 @@ auto_dividendes = st.checkbox("📌 SASU : percevoir tous les bénéfices comme 
 capital_eurl = st.number_input("📌 Capital social (pour EURL)", value=1000)
 
 if mode_saisie == "Nette":
-    remu_net = st.number_input("👤 Rémunération nette souhaitée", value=0) * facteur
-    remu_brute_sasu = remu_net * (1 + taux_sasu)
-    remu_brute_eurl = remu_net * (1 + taux_eurl)
+    remu_net_sasu = st.number_input("👤 Rémunération nette SASU", value=0) * facteur
+    remu_net_eurl = st.number_input("👤 Rémunération nette EURL", value=0) * facteur
+    remu_brute_sasu = remu_net_sasu * (1 + taux_sasu)
+    remu_brute_eurl = remu_net_eurl * (1 + taux_eurl)
 else:
-    remu_brute = st.number_input("👤 Rémunération brute souhaitée", value=0) * facteur
+    remu_brute = st.number_input("👤 Rémunération brute (coût entreprise)", value=0) * facteur
     remu_net_sasu = remu_brute / (1 + taux_sasu)
     remu_net_eurl = remu_brute / (1 + taux_eurl)
-    remu_net = remu_net_sasu  # pour affichage commun
     remu_brute_sasu = remu_brute
     remu_brute_eurl = remu_brute
 
-cot_sasu = remu_brute_sasu - remu_net
-cot_eurl = remu_brute_eurl - remu_net
+cot_sasu = remu_brute_sasu - remu_net_sasu
+cot_eurl = remu_brute_eurl - remu_net_eurl
 
 def calcul_is(resultat):
     if resultat <= 0:
@@ -54,14 +54,16 @@ def calcul_dividendes_net_eurl(dividendes, capital):
     net = dividendes - flat_tax - cotisations
     return net, flat_tax, cotisations
 
+# SASU
 cout_sasu = remu_brute_sasu
 resultat_sasu = ca - charges - cout_sasu
 is_sasu = calcul_is(resultat_sasu)
 benefice_net_sasu = resultat_sasu - is_sasu
 div_sasu = max(0, benefice_net_sasu) if auto_dividendes else st.number_input("📈 Dividendes SASU", value=5000 * facteur)
 div_net_sasu = div_sasu * (1 - taux_flat_tax)
-revenu_net_sasu = remu_net + div_net_sasu
+revenu_net_sasu = remu_net_sasu + div_net_sasu
 
+# EURL
 cout_eurl = remu_brute_eurl
 if eurl_avec_is:
     resultat_eurl = ca - charges - cout_eurl
@@ -72,24 +74,23 @@ if eurl_avec_is:
     else:
         dividendes_eurl = st.number_input("📈 Dividendes EURL", value=5000 * facteur)
     div_net_eurl, flat_tax_eurl, cot_div_eurl = calcul_dividendes_net_eurl(dividendes_eurl, capital_eurl)
-    revenu_net_eurl = remu_net + div_net_eurl
+    revenu_net_eurl = remu_net_eurl + div_net_eurl
 else:
     resultat_eurl = ca - charges
     is_eurl = 0
     benefice_net_eurl = resultat_eurl
     dividendes_eurl = 0
     div_net_eurl = 0
-    revenu_net_eurl = remu_net
+    revenu_net_eurl = remu_net_eurl
 
 # === Affichage SASU
 col1, col2 = st.columns(2)
-
 with col1:
     with st.container():
         st.markdown("<div style='border: 1px solid #ddd; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 SASU")
         st.markdown("### 👔 Rémunération")
-        st.write(f"Rémunération nette : **{remu_net:.0f} €**")
+        st.write(f"Rémunération nette : **{remu_net_sasu:.0f} €**")
         st.write(f"Charges sociales estimées : **{cot_sasu:.0f} €** ({taux_sasu*100:.0f} %)")
         st.write(f"💸 Coût total entreprise : **{cout_sasu:.0f} €**")
 
@@ -113,7 +114,7 @@ with col2:
         st.markdown("<div style='border: 1px solid #ddd; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 EURL")
         st.markdown("### 👔 Rémunération")
-        st.write(f"Rémunération nette : **{remu_net:.0f} €**")
+        st.write(f"Rémunération nette : **{remu_net_eurl:.0f} €**")
         st.write(f"Charges sociales estimées : **{cot_eurl:.0f} €** ({taux_eurl*100:.0f} %)")
         st.write(f"💸 Coût total entreprise : **{cout_eurl:.0f} €**")
 
