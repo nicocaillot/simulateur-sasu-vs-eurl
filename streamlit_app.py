@@ -28,7 +28,9 @@ if mode_saisie == "Nette":
     remu_brute_eurl = remu_net * (1 + taux_eurl)
 else:
     remu_brute = st.number_input("👤 Rémunération brute souhaitée", value=0) * facteur
-    remu_net = remu_brute / (1 + taux_sasu)
+    remu_net_sasu = remu_brute / (1 + taux_sasu)
+    remu_net_eurl = remu_brute / (1 + taux_eurl)
+    remu_net = remu_net_sasu  # pour affichage commun
     remu_brute_sasu = remu_brute
     remu_brute_eurl = remu_brute
 
