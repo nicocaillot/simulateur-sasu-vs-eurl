@@ -76,14 +76,3 @@ revenu_net_eurl = remu_net + div_net_eurl
 # ... reste du code identique ...
 
 
-✅ Le simulateur prend désormais en compte l’imposition sociale spécifique des dividendes en EURL à l’IS :
-
-Les dividendes supérieurs à 10 % du capital (ici simulé à 10 000 €) sont soumis à ~40 % de charges sociales
-
-Le reste reste taxé à la flat tax de 30 %
-
-L’utilisateur peut saisir manuellement le montant de dividendes EURL
-
-
-Souhaites-tu maintenant que j’affiche le détail de cette répartition dans les résultats, ou que je rende ce seuil personnalisable ?
-
