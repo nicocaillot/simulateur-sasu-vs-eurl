@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Simulateur SASU vs EURL", page_icon="📊", layout="centered")
 st.title("🧮 Simulateur SASU vs EURL")
 
-frequence = st.radio("🗓️ Voir les résultats :", ["Annuel", "Mensuel"])
-facteur = 1 if frequence == "Annuel" else 1 / 12
+frequence = st.radio("🗓️ Voir les résultats :", ["Année", "Mois"])
+facteur = 1 if frequence == "Année" else 1 / 12
 mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Coût employeur"])
 
 taux_sasu = 0.82
