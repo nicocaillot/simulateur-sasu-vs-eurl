@@ -11,7 +11,6 @@ mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Coût 
 taux_sasu = 0.82
 taux_eurl = 0.66
 taux_flat_tax = 0.30
-taux_cot_tns = 0.40  # charges sociales sur dividendes EURL TNS au-delà du seuil
 
 ca = st.number_input("💰 Chiffre d'affaires", value=30000) * facteur
 charges = st.number_input("💸 Charges hors rémunération", value=0) * facteur
@@ -39,6 +38,7 @@ def calcul_is(resultat):
     else:
         return 42500 * 0.15 + (resultat - 42500) * 0.25
 
+# === SASU
 cout_sasu = remu_brute_sasu
 resultat_sasu = ca - charges - cout_sasu
 is_sasu = calcul_is(resultat_sasu)
@@ -47,32 +47,95 @@ div_sasu = max(0, benefice_net_sasu) if auto_dividendes else st.number_input("�
 div_net_sasu = div_sasu * (1 - taux_flat_tax)
 revenu_net_sasu = remu_net + div_net_sasu
 
+# === EURL
 cout_eurl = remu_brute_eurl
 if eurl_avec_is:
     resultat_eurl = ca - charges - cout_eurl
     is_eurl = calcul_is(resultat_eurl)
     benefice_net_eurl = resultat_eurl - is_eurl
-    div_eurl = max(0, benefice_net_eurl)
-    div_eurl = st.number_input("📈 Dividendes EURL", value=div_eurl)
-
-    # seuil au-delà duquel les dividendes sont soumis à cotisations sociales (~10% capital fictif 10 000 € ici)
-    seuil_dividendes = 1000 * facteur  # ex. 10% d’un capital fictif de 10 000 €
-    part_sociale = max(0, div_eurl - seuil_dividendes)
-    part_non_sociale = min(div_eurl, seuil_dividendes)
-
-    div_net_sociale = part_sociale * (1 - taux_cot_tns)
-    div_net_flat = part_non_sociale * (1 - taux_flat_tax)
-    div_net_eurl = div_net_sociale + div_net_flat
+    div_eurl = st.number_input("📈 Dividendes EURL", value=5000 * facteur)
+    div_net_eurl = div_eurl * (1 - taux_flat_tax)
+    revenu_net_eurl = remu_net + div_net_eurl
 else:
     resultat_eurl = ca - charges
     is_eurl = 0
     benefice_net_eurl = resultat_eurl
     div_net_eurl = 0
+    revenu_net_eurl = remu_net
 
-div_net_eurl = round(div_net_eurl, 2)
-revenu_net_eurl = remu_net + div_net_eurl
+# === Affichage
+col1, col2 = st.columns(2)
 
-# Affichage et graphique (inchangé)
-# ... reste du code identique ...
+with col1:
+    with st.container():
+        st.markdown("<div style='border: 1px solid #ccc; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
+        st.subheader("📊 SASU")
+        st.markdown("### 👔 Rémunération")
+        st.write(f"Rémunération nette : **{remu_net:.0f} €**")
+        st.write(f"Charges sociales estimées : **{cot_sasu:.0f} €** ({taux_sasu*100:.0f} %)")
+        st.write(f"💸 Coût total entreprise : **{cout_sasu:.0f} €**")
 
+        st.markdown("### 🏢 Société")
+        st.write(f"Charges hors rémunération : **{charges:.0f} €**")
+        st.write(f"Bénéfice avant IS : **{resultat_sasu:.0f} €**")
+        if resultat_sasu > 42500:
+            st.write(f"IS : 15% sur 42 500 € = {42500 * 0.15:.0f} €")
+            st.write(f"     25% sur {resultat_sasu - 42500:.0f} € = {(resultat_sasu - 42500) * 0.25:.0f} €")
+        st.write(f"➡️ Total IS = **{is_sasu:.0f} €**")
+        st.markdown(f"🟢 <strong>Bénéfice après IS :</strong> <span style='color:green'><strong>{benefice_net_sasu:.0f} €</strong></span>", unsafe_allow_html=True)
 
+        st.markdown("### 💰 Distribution")
+        st.write(f"Dividendes nets (flat tax 30%) : **{div_net_sasu:.0f} €**")
+        st.markdown(f"🟢 <strong>Revenu net total :</strong> <span style='color:green'><strong>{revenu_net_sasu:.0f} €</strong></span> par {frequence.lower()}", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+with col2:
+    with st.container():
+        st.markdown("<div style='border: 1px solid #ccc; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
+        st.subheader("📊 EURL")
+        st.markdown("### 👔 Rémunération")
+        st.write(f"Rémunération nette : **{remu_net:.0f} €**")
+        st.write(f"Charges sociales estimées : **{cot_eurl:.0f} €** ({taux_eurl*100:.0f} %)")
+        st.write(f"💸 Coût total entreprise : **{cout_eurl:.0f} €**")
+
+        st.markdown("### 🏢 Société")
+        st.write(f"Charges hors rémunération : **{charges:.0f} €**")
+        st.write(f"Bénéfice avant IS : **{resultat_eurl:.0f} €**")
+        if eurl_avec_is:
+            if resultat_eurl > 42500:
+                st.write(f"IS : 15% sur 42 500 € = {42500 * 0.15:.0f} €")
+                st.write(f"     25% sur {resultat_eurl - 42500:.0f} € = {(resultat_eurl - 42500) * 0.25:.0f} €")
+            st.write(f"➡️ Total IS = **{is_eurl:.0f} €**")
+            st.markdown(f"🟢 <strong>Bénéfice après IS :</strong> <span style='color:green'><strong>{benefice_net_eurl:.0f} €</strong></span>", unsafe_allow_html=True)
+            st.markdown("### 💰 Distribution")
+            st.write(f"Dividendes nets (flat tax 30%) : **{div_net_eurl:.0f} €**")
+        else:
+            st.info("Rémunération non déductible fiscalement à l'IR")
+            st.write(f"IS = 0 € (le gérant est imposé directement sur le résultat de l'entreprise)")
+            st.markdown(f"🟢 <strong>Bénéfice après IR :</strong> <span style='color:green'><strong>{benefice_net_eurl:.0f} €</strong></span>", unsafe_allow_html=True)
+
+        st.markdown(f"🟢 <strong>Revenu net total :</strong> <span style='color:green'><strong>{revenu_net_eurl:.0f} €</strong></span> par {frequence.lower()}", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+# Graphique comparatif
+st.markdown("---")
+fig, ax = plt.subplots()
+ax.bar(["SASU", "EURL"], [revenu_net_sasu, revenu_net_eurl], color=["#4caf50", "#2196f3"])
+ax.set_ylabel(f"Revenu net {frequence.lower()} (€)")
+ax.set_title("Comparatif SASU vs EURL")
+st.pyplot(fig)
+
+# Résultat final
+diff = revenu_net_sasu - revenu_net_eurl
+if diff > 0:
+    st.success(f"✅ SASU plus avantageuse de **{diff:.0f} €** par {frequence.lower()}")
+elif diff < 0:
+    st.error(f"❌ EURL plus avantageuse de **{-diff:.0f} €** par {frequence.lower()}")
+else:
+    st.info("⚖️ Égalité parfaite.")
+
+# Rappel pédagogique
+st.markdown("---")
+st.markdown("📘 **Note fiscale :**")
+st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
+st.markdown("- En **EURL à l'IS** (comme en SASU), la rémunération est **déductible** : elle réduit le bénéfice imposable à l’IS.")
