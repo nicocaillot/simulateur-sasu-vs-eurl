@@ -2,34 +2,34 @@ import streamlit as st
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Simulateur SASU vs EURL", page_icon="📊", layout="centered")
-st.title("🧮 Simulateur SASU vs EURL")
+st.title("🧲 Simulateur SASU vs EURL")
 
-# Choix affichage
 frequence = st.radio("🗓️ Voir les résultats :", ["Année", "Mois"])
 facteur = 1 if frequence == "Année" else 1 / 12
 mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Coût employeur"])
 
-# Paramètres
 taux_sasu = 0.82
+
+eurl_avec_is = st.checkbox("🏩 EURL soumise à l'IS")
+taux_eurl = 0.45 if eurl_avec_is else 0.66
+
+st.markdown(f"<small>📃 Taux de charges sociales utilisé pour l’EURL : <strong>{int(taux_eurl * 100)}%</strong></small>", unsafe_allow_html=True)
+
 taux_flat_tax = 0.30
 
-# Inputs
 ca = st.number_input("💰 Chiffre d'affaires", value=30000) * facteur
 charges = st.number_input("💸 Charges hors rémunération", value=0) * facteur
-eurl_avec_is = st.checkbox("🏛️ EURL soumise à l'IS")
-eurl_taux = 0.45 if eurl_avec_is else 0.66
-st.markdown(f"ℹ️ Taux de charges sociales utilisé pour l’EURL : **{int(eurl_taux * 100)}%**")
-
-eurl_auto_dividendes = st.checkbox("📌 EURL : percevoir tous les bénéfices comme dividendes") if eurl_avec_is else False
+eurl_auto_dividendes = False
+if eurl_avec_is:
+    eurl_auto_dividendes = st.checkbox("📌 EURL : percevoir tous les bénéfices comme dividendes")
 auto_dividendes = st.checkbox("📌 SASU : percevoir tous les bénéfices comme dividendes")
 
 capital_eurl = st.number_input("📌 Capital social (pour EURL)", value=1000)
 
-# Rémunération
 if mode_saisie == "Nette":
     remu_net = st.number_input("👤 Rémunération nette souhaitée", value=0) * facteur
     remu_brute_sasu = remu_net * (1 + taux_sasu)
-    remu_brute_eurl = remu_net * (1 + eurl_taux)
+    remu_brute_eurl = remu_net * (1 + taux_eurl)
 else:
     remu_brute = st.number_input("👤 Rémunération brute souhaitée", value=0) * facteur
     remu_net = remu_brute / (1 + taux_sasu)
@@ -39,7 +39,6 @@ else:
 cot_sasu = remu_brute_sasu - remu_net
 cot_eurl = remu_brute_eurl - remu_net
 
-# Fonctions calcul
 def calcul_is(resultat):
     if resultat <= 0:
         return 0
@@ -84,7 +83,7 @@ else:
     benefice_net_eurl = resultat_eurl
     dividendes_eurl = 0
     div_net_eurl = 0
-    cotisations_ir = max(0, resultat_eurl * eurl_taux)
+    cotisations_ir = max(0, resultat_eurl * taux_eurl)
     revenu_net_eurl = max(0, resultat_eurl - cotisations_ir)
 
 # === Affichage SASU
@@ -94,7 +93,7 @@ with col1:
     with st.container():
         st.markdown("<div style='border: 1px solid #ddd; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 SASU")
-        st.markdown("### 👔 Rémunération")
+        st.markdown("### 💼 Rémunération")
         st.write(f"Rémunération nette : **{remu_net:.0f} €**")
         st.write(f"Charges sociales estimées : **{cot_sasu:.0f} €** ({taux_sasu*100:.0f} %)")
         st.write(f"💸 Coût total entreprise : **{cout_sasu:.0f} €**")
@@ -118,9 +117,9 @@ with col2:
     with st.container():
         st.markdown("<div style='border: 1px solid #ddd; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 EURL")
-        st.markdown("### 👔 Rémunération")
+        st.markdown("### 💼 Rémunération")
         st.write(f"Rémunération nette : **{remu_net:.0f} €**")
-        st.write(f"Charges sociales estimées : **{cot_eurl:.0f} €** ({eurl_taux*100:.0f} %)")
+        st.write(f"Charges sociales estimées : **{cot_eurl:.0f} €** ({taux_eurl*100:.0f} %)")
         st.write(f"💸 Coût total entreprise : **{cout_eurl:.0f} €**")
 
         st.markdown("### 🏢 Société")
@@ -141,7 +140,7 @@ with col2:
             st.info("Rémunération non déductible fiscalement à l'IR")
             st.markdown("### 💰 Imposition IR (gérant)")
             st.write(f"Bénéfice brut après charges : **{resultat_eurl:.0f} €**")
-            st.write(f"Charges sociales estimées (~{eurl_taux*100:.0f}%) : **{cotisations_ir:.0f} €**")
+            st.write(f"Charges sociales estimées (~{taux_eurl*100:.0f}%) : **{cotisations_ir:.0f} €**")
             st.markdown(f"🟢 <strong>Revenu net estimé :</strong> <span style='color:green'><strong>{revenu_net_eurl:.0f} €</strong></span>", unsafe_allow_html=True)
 
         st.markdown(f"🟢 <strong>Revenu net total :</strong> <span style='color:green'><strong>{revenu_net_eurl:.0f} €</strong></span> par {frequence.lower()}", unsafe_allow_html=True)
