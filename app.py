@@ -38,6 +38,7 @@ def calcul_is(resultat):
     else:
         return 42500 * 0.15 + (resultat - 42500) * 0.25
 
+# === SASU
 cout_sasu = remu_brute_sasu
 resultat_sasu = ca - charges - cout_sasu
 is_sasu = calcul_is(resultat_sasu)
@@ -46,12 +47,14 @@ div_sasu = max(0, benefice_net_sasu) if auto_dividendes else st.number_input("�
 div_net_sasu = div_sasu * (1 - taux_flat_tax)
 revenu_net_sasu = remu_net + div_net_sasu
 
+# === EURL
 cout_eurl = remu_brute_eurl
 if eurl_avec_is:
     resultat_eurl = ca - charges - cout_eurl
     is_eurl = calcul_is(resultat_eurl)
     benefice_net_eurl = resultat_eurl - is_eurl
-    div_net_eurl = max(0, benefice_net_eurl) * (1 - taux_flat_tax)
+    div_eurl = st.number_input("📈 Dividendes EURL", value=5000 * facteur)
+    div_net_eurl = div_eurl * (1 - taux_flat_tax)
     revenu_net_eurl = remu_net + div_net_eurl
 else:
     resultat_eurl = ca - charges
@@ -60,11 +63,12 @@ else:
     div_net_eurl = 0
     revenu_net_eurl = remu_net
 
+# === Affichage
 col1, col2 = st.columns(2)
 
 with col1:
     with st.container():
-        st.markdown("<div style='border: 1px solid #cccccc; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
+        st.markdown("<div style='border: 1px solid #ccc; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 SASU")
         st.markdown("### 👔 Rémunération")
         st.write(f"Rémunération nette : **{remu_net:.0f} €**")
@@ -87,7 +91,7 @@ with col1:
 
 with col2:
     with st.container():
-        st.markdown("<div style='border: 1px solid #cccccc; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
+        st.markdown("<div style='border: 1px solid #ccc; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 EURL")
         st.markdown("### 👔 Rémunération")
         st.write(f"Rémunération nette : **{remu_net:.0f} €**")
@@ -113,6 +117,7 @@ with col2:
         st.markdown(f"🟢 <strong>Revenu net total :</strong> <span style='color:green'><strong>{revenu_net_eurl:.0f} €</strong></span> par {frequence.lower()}", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
+# Graphique comparatif
 st.markdown("---")
 fig, ax = plt.subplots()
 ax.bar(["SASU", "EURL"], [revenu_net_sasu, revenu_net_eurl], color=["#4caf50", "#2196f3"])
@@ -120,6 +125,7 @@ ax.set_ylabel(f"Revenu net {frequence.lower()} (€)")
 ax.set_title("Comparatif SASU vs EURL")
 st.pyplot(fig)
 
+# Résultat final
 diff = revenu_net_sasu - revenu_net_eurl
 if diff > 0:
     st.success(f"✅ SASU plus avantageuse de **{diff:.0f} €** par {frequence.lower()}")
@@ -128,6 +134,7 @@ elif diff < 0:
 else:
     st.info("⚖️ Égalité parfaite.")
 
+# Rappel pédagogique
 st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **EURL à l'IR**, la rémunération du gérant **n’est pas déductible** du bénéfice.")
