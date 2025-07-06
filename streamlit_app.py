@@ -8,8 +8,8 @@ frequence = st.radio("🗓️ Voir les résultats :", ["Année", "Mois"])
 facteur = 1 if frequence == "Année" else 1 / 12
 mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Coût employeur"])
 
-taux_sasu = 0.84
-taux_eurl = 0.66
+taux_sasu = 0.82
+taux_eurl = 0.45
 taux_flat_tax = 0.30
 
 ca = st.number_input("💰 Chiffre d'affaires", value=30000) * facteur
@@ -19,6 +19,7 @@ eurl_auto_dividendes = False
 if eurl_avec_is:
     eurl_auto_dividendes = st.checkbox("📌 EURL : percevoir tous les bénéfices comme dividendes")
 auto_dividendes = st.checkbox("📌 SASU : percevoir tous les bénéfices comme dividendes")
+
 capital_eurl = st.number_input("📌 Capital social (pour EURL)", value=1000)
 
 if mode_saisie == "Nette":
@@ -27,11 +28,13 @@ if mode_saisie == "Nette":
     remu_brute_eurl = remu_net * (1 + taux_eurl)
 else:
     remu_brute = st.number_input("👤 Rémunération brute souhaitée", value=0) * facteur
-    remu_net = None
-    remu_net_sasu = remu_brute / (1 + taux_sasu)
-    remu_net_eurl = remu_brute / (1 + taux_eurl)
+    remu_net = remu_brute / (1 + taux_sasu)
     remu_brute_sasu = remu_brute
-    remu_brute_eurl = remu_brute
+    remu_brute_eurl = remu_brute / (1 + taux_eurl)
+    remu_net_eurl = remu_brute_eurl / (1 + taux_eurl)
+
+cot_sasu = remu_brute_sasu - remu_net
+cot_eurl = remu_brute_eurl - (remu_brute_eurl / (1 + taux_eurl))
 
 def calcul_is(resultat):
     if resultat <= 0:
@@ -51,21 +54,17 @@ def calcul_dividendes_net_eurl(dividendes, capital):
     return net, flat_tax, cotisations
 
 # SASU
-remu_net_sasu = remu_net if mode_saisie == "Nette" else remu_net_sasu
-cot_sasu = remu_brute_sasu - remu_net_sasu
 cout_sasu = remu_brute_sasu
 resultat_sasu = ca - charges - cout_sasu
 is_sasu = calcul_is(resultat_sasu)
 benefice_net_sasu = resultat_sasu - is_sasu
 div_sasu = max(0, benefice_net_sasu) if auto_dividendes else st.number_input("📈 Dividendes SASU", value=5000 * facteur)
 div_net_sasu = div_sasu * (1 - taux_flat_tax)
-revenu_net_sasu = remu_net_sasu + div_net_sasu
+revenu_net_sasu = remu_net + div_net_sasu
 
 # EURL
-remu_net_eurl = remu_net if mode_saisie == "Nette" else remu_net_eurl
-cot_eurl = remu_brute_eurl - remu_net_eurl
-cout_eurl = remu_brute_eurl
 if eurl_avec_is:
+    cout_eurl = remu_brute_eurl
     resultat_eurl = ca - charges - cout_eurl
     is_eurl = calcul_is(resultat_eurl)
     benefice_net_eurl = resultat_eurl - is_eurl
@@ -74,16 +73,16 @@ if eurl_avec_is:
     else:
         dividendes_eurl = st.number_input("📈 Dividendes EURL", value=5000 * facteur)
     div_net_eurl, flat_tax_eurl, cot_div_eurl = calcul_dividendes_net_eurl(dividendes_eurl, capital_eurl)
-    revenu_net_eurl = remu_net_eurl + div_net_eurl
+    revenu_net_eurl = remu_net + div_net_eurl
 else:
     resultat_eurl = ca - charges
     is_eurl = 0
     benefice_net_eurl = resultat_eurl
     dividendes_eurl = 0
     div_net_eurl = 0
-    revenu_net_eurl = remu_net_eurl
+    revenu_net_eurl = benefice_net_eurl
 
-# === Affichage
+# Affichage
 col1, col2 = st.columns(2)
 
 with col1:
@@ -91,7 +90,7 @@ with col1:
         st.markdown("<div style='border: 1px solid #ddd; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 SASU")
         st.markdown("### 👔 Rémunération")
-        st.write(f"Rémunération nette : **{remu_net_sasu:.0f} €**")
+        st.write(f"Rémunération nette : **{remu_net:.0f} €**")
         st.write(f"Charges sociales estimées : **{cot_sasu:.0f} €** ({taux_sasu*100:.0f} %)")
         st.write(f"💸 Coût total entreprise : **{cout_sasu:.0f} €**")
         st.markdown("### 🏢 Société")
@@ -111,17 +110,10 @@ with col2:
     with st.container():
         st.markdown("<div style='border: 1px solid #ddd; border-radius: 8px; padding: 16px;'>", unsafe_allow_html=True)
         st.subheader("📊 EURL")
-        st.markdown("### 👔 Rémunération")
-        st.write(f"Rémunération nette : **{remu_net_eurl:.0f} €**")
-        st.write(f"Charges sociales estimées : **{cot_eurl:.0f} €** ({taux_eurl*100:.0f} %)")
-        st.write(f"💸 Coût total entreprise : **{cout_eurl:.0f} €**")
         st.markdown("### 🏢 Société")
         st.write(f"Charges hors rémunération : **{charges:.0f} €**")
-        st.write(f"Bénéfice avant IS : **{resultat_eurl:.0f} €**")
+        st.write(f"Résultat entreprise : **{resultat_eurl:.0f} €**")
         if eurl_avec_is:
-            if resultat_eurl > 42500:
-                st.write(f"IS : 15% sur 42 500 € = {42500 * 0.15:.0f} €")
-                st.write(f"     25% sur {resultat_eurl - 42500:.0f} € = {(resultat_eurl - 42500) * 0.25:.0f} €")
             st.write(f"➡️ Total IS = **{is_eurl:.0f} €**")
             st.markdown(f"🟢 <strong>Bénéfice après IS :</strong> <span style='color:green'><strong>{benefice_net_eurl:.0f} €</strong></span>", unsafe_allow_html=True)
             st.markdown("### 💰 Distribution")
@@ -130,13 +122,12 @@ with col2:
             st.write(f"Cotisations sociales sur surplus = **{cot_div_eurl:.0f} €**")
             st.write(f"Dividendes nets : **{div_net_eurl:.0f} €**")
         else:
-            st.info("Rémunération non déductible fiscalement à l'IR")
-            st.write(f"IS = 0 € (le gérant est imposé directement sur le résultat)")
-            st.markdown(f"🟢 <strong>Bénéfice après IR :</strong> <span style='color:green'><strong>{benefice_net_eurl:.0f} €</strong></span>", unsafe_allow_html=True)
+            st.info("EURL à l'IR : tout le bénéfice est imposé à l'impôt sur le revenu")
+            st.markdown(f"🟢 <strong>Revenu net total (résultat entreprise) :</strong> <span style='color:green'><strong>{revenu_net_eurl:.0f} €</strong></span>", unsafe_allow_html=True)
         st.markdown(f"🟢 <strong>Revenu net total :</strong> <span style='color:green'><strong>{revenu_net_eurl:.0f} €</strong></span> par {frequence.lower()}", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-# === Graphique
+# Graphique
 st.markdown("---")
 fig, ax = plt.subplots()
 ax.bar(["SASU", "EURL"], [revenu_net_sasu, revenu_net_eurl], color=["#4caf50", "#2196f3"])
@@ -152,10 +143,11 @@ elif diff < 0:
 else:
     st.info("⚖️ Égalité parfaite.")
 
+# Note pédagogique
 st.markdown("---")
 st.markdown("📘 **Note fiscale :**")
 st.markdown("- En **SASU**, les dividendes sont soumis à la flat tax de **30 %**.")
 st.markdown("- En **EURL à l’IS**, les dividendes sont soumis :")
-st.markdown("  - À la flat tax de 30 % sur la partie inférieure à 10 % du capital")
-st.markdown("  - Aux **cotisations sociales (~45 %)** au-delà de ce seuil.")
-st.markdown("- En **EURL à l’IR**, les bénéfices sont imposés directement dans la déclaration du dirigeant, pas de dividendes distribuables.")
+st.markdown("  - À la flat tax de 30 % sur la partie ≤ 10 % du capital")
+st.markdown("  - Aux **cotisations sociales (~45 %)** au-delà.")
+st.markdown("- En **EURL à l’IR**, le bénéfice est imposé directement au nom du dirigeant. Pas de dividendes distribuables.")
