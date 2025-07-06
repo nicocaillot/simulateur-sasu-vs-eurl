@@ -9,7 +9,7 @@ facteur = 1 if frequence == "Année" else 1 / 12
 mode_saisie = st.radio("💼 Type de rémunération saisie :", ["Nette", "Coût employeur"])
 
 taux_sasu = 0.82
-taux_eurl = 0.66
+taux_eurl = 0.45
 taux_flat_tax = 0.30
 
 ca = st.number_input("💰 Chiffre d'affaires", value=30000) * facteur
